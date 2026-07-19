@@ -41,7 +41,7 @@ export function SuitabilityForm({
   const [inputs, setInputs] = useState<Record<string, RowInputs>>(
     buildInitialInputs(steps, scores)
   );
-  const [savingStepId, setSavingStepId] = useState<string | null>(null);
+  const [savingStepIds, setSavingStepIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
 
   function updateInput(stepId: string, field: keyof RowInputs, value: number) {
@@ -52,7 +52,7 @@ export function SuitabilityForm({
   }
 
   async function handleSave(stepId: string) {
-    setSavingStepId(stepId);
+    setSavingStepIds((prev) => new Set(prev).add(stepId));
     setError(null);
     try {
       const response = await fetch("/api/suitability", {
@@ -69,7 +69,11 @@ export function SuitabilityForm({
     } catch {
       setError("Failed to save score");
     } finally {
-      setSavingStepId(null);
+      setSavingStepIds((prev) => {
+        const next = new Set(prev);
+        next.delete(stepId);
+        return next;
+      });
     }
   }
 
@@ -144,11 +148,11 @@ export function SuitabilityForm({
                 <td>
                   <button
                     type="button"
-                    disabled={savingStepId === step.id}
+                    disabled={savingStepIds.has(step.id)}
                     onClick={() => handleSave(step.id)}
                     className="rounded bg-slate-900 px-3 py-1 text-white disabled:opacity-50"
                   >
-                    {savingStepId === step.id ? "Saving..." : "Save"}
+                    {savingStepIds.has(step.id) ? "Saving..." : "Save"}
                   </button>
                 </td>
               </tr>
