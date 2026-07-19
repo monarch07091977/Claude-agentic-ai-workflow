@@ -17,12 +17,12 @@ function pageToStep(page: any): StepRecord {
   const props = page.properties;
   return {
     id: page.id,
-    processId: props.Process.relation[0]?.id ?? "",
+    processId: props.Process?.relation?.[0]?.id ?? "",
     stepName: props["Step Name"]?.title?.map((t: any) => t.plain_text).join("") ?? "",
-    sequence: props.Sequence.number ?? 0,
-    handoffType: props["Handoff Type"].select?.name ?? "System",
-    cycleTimeHours: props["Cycle Time (hrs)"].number ?? 0,
-    cost: props.Cost.number ?? 0,
+    sequence: props.Sequence?.number ?? 0,
+    handoffType: props["Handoff Type"]?.select?.name ?? "System",
+    cycleTimeHours: props["Cycle Time (hrs)"]?.number ?? 0,
+    cost: props.Cost?.number ?? 0,
     bottleneck: props.Bottleneck?.checkbox ?? false,
     notes: props.Notes?.rich_text?.map((t: any) => t.plain_text).join("") ?? "",
   };
