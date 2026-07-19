@@ -19,4 +19,7 @@ export const notionConfig = {
   get suitabilityDbId() {
     return requireEnv("NOTION_SUITABILITY_DB_ID");
   },
+  get agentBlueprintDbId() {
+    return requireEnv("NOTION_AGENT_BLUEPRINT_DB_ID");
+  },
 };

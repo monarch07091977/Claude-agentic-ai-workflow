@@ -180,10 +180,68 @@ async function main() {
     suitabilityDbId = suitabilityDb.id;
   }
 
+  let agentBlueprintDbId = await findExistingDatabaseId(notion, parentPageId, "Agent Blueprint");
+  if (agentBlueprintDbId) {
+    console.log("Agent Blueprint database already exists, reusing it.");
+  } else {
+    const agentBlueprintDb = await notion.databases.create({
+      parent: { type: "page_id", page_id: parentPageId },
+      title: [{ type: "text", text: { content: "Agent Blueprint" } }],
+      properties: {
+        "Agent Name": { title: {} },
+        Process: {
+          relation: {
+            database_id: processesDbId,
+            type: "single_property",
+            single_property: {},
+          },
+        },
+        Role: { rich_text: {} },
+        "Trigger Event": { rich_text: {} },
+        "HITL Exception Rule": { rich_text: {} },
+      },
+    });
+
+    await notion.databases.update({
+      database_id: agentBlueprintDb.id,
+      properties: {
+        "Upstream Agent": {
+          relation: {
+            database_id: agentBlueprintDb.id,
+            type: "dual_property",
+            dual_property: {},
+          },
+        },
+      },
+    });
+
+    const agentBlueprintDbFull = await notion.databases.retrieve({
+      database_id: agentBlueprintDb.id,
+    });
+    const downstreamRelation = Object.values(agentBlueprintDbFull.properties).find(
+      (prop: any) =>
+        prop.type === "relation" && prop.name !== "Upstream Agent" && prop.name !== "Process"
+    ) as any;
+    if (!downstreamRelation) {
+      throw new Error(
+        "Could not find the auto-created back-relation property on Agent Blueprint"
+      );
+    }
+    await notion.databases.update({
+      database_id: agentBlueprintDb.id,
+      properties: {
+        [downstreamRelation.name]: { name: "Downstream Agents" },
+      },
+    });
+
+    agentBlueprintDbId = agentBlueprintDb.id;
+  }
+
   console.log("Notion setup complete. Add these to your .env.local:\n");
   console.log(`NOTION_PROCESSES_DB_ID=${processesDbId}`);
   console.log(`NOTION_STEPS_DB_ID=${stepsDbId}`);
   console.log(`NOTION_SUITABILITY_DB_ID=${suitabilityDbId}`);
+  console.log(`NOTION_AGENT_BLUEPRINT_DB_ID=${agentBlueprintDbId}`);
 }
 
 main().catch((error) => {
