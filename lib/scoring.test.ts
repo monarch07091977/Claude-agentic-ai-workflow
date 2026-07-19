@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { computeBaselineSummary } from "./scoring";
+import {
+  computeBaselineSummary,
+  computeSuitabilityScore,
+  classifySuitability,
+} from "./scoring";
 import type { StepRecord } from "./notion/steps";
 
 function makeStep(overrides: Partial<StepRecord> = {}): StepRecord {
@@ -37,5 +41,43 @@ describe("computeBaselineSummary", () => {
       totalCost: 175,
       bottleneckCount: 2,
     });
+  });
+});
+
+describe("computeSuitabilityScore", () => {
+  it("weights decision logic at 0.5 and the other two inputs at 0.25 each", () => {
+    const score = computeSuitabilityScore({
+      dataComplexity: 1,
+      decisionLogic: 5,
+      contextVolatility: 3,
+    });
+    expect(score).toBe(3.5);
+  });
+
+  it("weights all-equal inputs to the same value", () => {
+    const score = computeSuitabilityScore({
+      dataComplexity: 4,
+      decisionLogic: 4,
+      contextVolatility: 4,
+    });
+    expect(score).toBe(4);
+  });
+});
+
+describe("classifySuitability", () => {
+  it("classifies scores below 2.33 as Algorithmic", () => {
+    expect(classifySuitability(1)).toBe("Algorithmic");
+    expect(classifySuitability(2.32)).toBe("Algorithmic");
+  });
+
+  it("classifies scores from 2.33 to 3.67 inclusive as Agentic", () => {
+    expect(classifySuitability(2.33)).toBe("Agentic");
+    expect(classifySuitability(3)).toBe("Agentic");
+    expect(classifySuitability(3.67)).toBe("Agentic");
+  });
+
+  it("classifies scores above 3.67 as Human-required", () => {
+    expect(classifySuitability(3.68)).toBe("Human-required");
+    expect(classifySuitability(5)).toBe("Human-required");
   });
 });

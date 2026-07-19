@@ -16,3 +16,25 @@ export function computeBaselineSummary(steps: StepRecord[]): BaselineSummary {
     { totalCycleTimeHours: 0, totalCost: 0, bottleneckCount: 0 }
   );
 }
+
+export interface SuitabilityInputs {
+  dataComplexity: number;
+  decisionLogic: number;
+  contextVolatility: number;
+}
+
+export function computeSuitabilityScore(inputs: SuitabilityInputs): number {
+  return (
+    inputs.decisionLogic * 0.5 +
+    inputs.dataComplexity * 0.25 +
+    inputs.contextVolatility * 0.25
+  );
+}
+
+export type SuitabilityClassification = "Algorithmic" | "Agentic" | "Human-required";
+
+export function classifySuitability(score: number): SuitabilityClassification {
+  if (score < 2.33) return "Algorithmic";
+  if (score <= 3.67) return "Agentic";
+  return "Human-required";
+}
