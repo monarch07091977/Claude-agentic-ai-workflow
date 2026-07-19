@@ -23,29 +23,34 @@ export function StepTable({
     event.preventDefault();
     setSubmitting(true);
     setError(null);
-    const response = await fetch("/api/steps", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        processId,
-        stepName,
-        sequence: steps.length + 1,
-        cycleTimeHours,
-        cost,
-        bottleneck,
-      }),
-    });
-    setSubmitting(false);
-    if (!response.ok) {
-      const body = await response.json();
-      setError(body.error ?? "Failed to add step");
-      return;
+    try {
+      const response = await fetch("/api/steps", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          processId,
+          stepName,
+          sequence: steps.length + 1,
+          cycleTimeHours,
+          cost,
+          bottleneck,
+        }),
+      });
+      if (!response.ok) {
+        const body = await response.json();
+        setError(body.error ?? "Failed to add step");
+        return;
+      }
+      setStepName("");
+      setCycleTimeHours(0);
+      setCost(0);
+      setBottleneck(false);
+      router.refresh();
+    } catch {
+      setError("Failed to add step");
+    } finally {
+      setSubmitting(false);
     }
-    setStepName("");
-    setCycleTimeHours(0);
-    setCost(0);
-    setBottleneck(false);
-    router.refresh();
   }
 
   return (
