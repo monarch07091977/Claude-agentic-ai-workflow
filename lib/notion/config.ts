@@ -16,4 +16,7 @@ export const notionConfig = {
   get stepsDbId() {
     return requireEnv("NOTION_STEPS_DB_ID");
   },
+  get suitabilityDbId() {
+    return requireEnv("NOTION_SUITABILITY_DB_ID");
+  },
 };

@@ -107,9 +107,38 @@ async function main() {
     },
   });
 
+  const suitabilityDb = await notion.databases.create({
+    parent: { type: "page_id", page_id: parentPageId },
+    title: [{ type: "text", text: { content: "Suitability Scores" } }],
+    properties: {
+      Score: { title: {} },
+      Step: {
+        relation: {
+          database_id: stepsDb.id,
+          type: "single_property",
+          single_property: {},
+        },
+      },
+      "Data Complexity": { number: { format: "number" } },
+      "Decision Logic": { number: { format: "number" } },
+      "Context Volatility": { number: { format: "number" } },
+      "Suitability Score": { number: { format: "number" } },
+      Classification: {
+        select: {
+          options: [
+            { name: "Algorithmic", color: "blue" },
+            { name: "Agentic", color: "green" },
+            { name: "Human-required", color: "orange" },
+          ],
+        },
+      },
+    },
+  });
+
   console.log("Notion setup complete. Add these to your .env.local:\n");
   console.log(`NOTION_PROCESSES_DB_ID=${processesDb.id}`);
   console.log(`NOTION_STEPS_DB_ID=${stepsDb.id}`);
+  console.log(`NOTION_SUITABILITY_DB_ID=${suitabilityDb.id}`);
 }
 
 main().catch((error) => {
