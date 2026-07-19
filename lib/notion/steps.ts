@@ -78,7 +78,7 @@ export async function updateStep(
   }>
 ): Promise<StepRecord> {
   const notion = getNotionClient();
-  const properties: Record<string, unknown> = {};
+  const properties: Record<string, any> = {};
   if (input.stepName !== undefined) {
     properties["Step Name"] = { title: [{ text: { content: input.stepName } }] };
   }
