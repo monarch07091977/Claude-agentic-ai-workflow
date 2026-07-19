@@ -38,3 +38,15 @@ export function classifySuitability(score: number): SuitabilityClassification {
   if (score <= 3.67) return "Agentic";
   return "Human-required";
 }
+
+export interface MetricProgressInputs {
+  baseline: number;
+  current: number;
+  target: number;
+}
+
+export function computeMetricProgress(metric: MetricProgressInputs): number {
+  if (metric.target === metric.baseline) return 0;
+  const progress = (metric.current - metric.baseline) / (metric.target - metric.baseline);
+  return Math.max(0, Math.min(1, progress)) * 100;
+}

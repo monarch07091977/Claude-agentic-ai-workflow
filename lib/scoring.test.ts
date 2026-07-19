@@ -3,6 +3,7 @@ import {
   computeBaselineSummary,
   computeSuitabilityScore,
   classifySuitability,
+  computeMetricProgress,
 } from "./scoring";
 import type { StepRecord } from "./notion/steps";
 
@@ -79,5 +80,32 @@ describe("classifySuitability", () => {
   it("classifies scores above 3.67 as Human-required", () => {
     expect(classifySuitability(3.68)).toBe("Human-required");
     expect(classifySuitability(5)).toBe("Human-required");
+  });
+});
+
+describe("computeMetricProgress", () => {
+  it("computes progress toward a target that is lower than baseline (e.g. cost reduction)", () => {
+    const progress = computeMetricProgress({ baseline: 100, current: 75, target: 50 });
+    expect(progress).toBe(50);
+  });
+
+  it("computes progress toward a target that is higher than baseline (e.g. hours reallocated)", () => {
+    const progress = computeMetricProgress({ baseline: 10, current: 15, target: 20 });
+    expect(progress).toBe(50);
+  });
+
+  it("clamps progress at 100 when current has overshot the target", () => {
+    const progress = computeMetricProgress({ baseline: 100, current: 40, target: 50 });
+    expect(progress).toBe(100);
+  });
+
+  it("clamps progress at 0 when current has moved the wrong way from baseline", () => {
+    const progress = computeMetricProgress({ baseline: 100, current: 110, target: 50 });
+    expect(progress).toBe(0);
+  });
+
+  it("returns 0 when target equals baseline, avoiding a divide-by-zero", () => {
+    const progress = computeMetricProgress({ baseline: 50, current: 60, target: 50 });
+    expect(progress).toBe(0);
   });
 });
