@@ -14,11 +14,7 @@ import type { MetricRecord } from "@/lib/notion/metrics";
 
 export function MetricsChart({ metrics }: { metrics: MetricRecord[] }) {
   if (metrics.length === 0) {
-    return (
-      <p className="mb-6 text-sm text-slate-500">
-        Add a metric below to see the value-realization chart.
-      </p>
-    );
+    return null;
   }
 
   const data = metrics.map((metric) => ({
