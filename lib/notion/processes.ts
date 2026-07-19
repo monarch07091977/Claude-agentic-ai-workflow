@@ -15,9 +15,9 @@ function pageToProcess(page: any): ProcessRecord {
   const props = page.properties;
   return {
     id: page.id,
-    name: props.Name.title.map((t: any) => t.plain_text).join(""),
-    description: props.Description.rich_text.map((t: any) => t.plain_text).join(""),
-    owner: props.Owner.rich_text.map((t: any) => t.plain_text).join(""),
+    name: props.Name?.title?.map((t: any) => t.plain_text).join("") ?? "",
+    description: props.Description?.rich_text?.map((t: any) => t.plain_text).join("") ?? "",
+    owner: props.Owner?.rich_text?.map((t: any) => t.plain_text).join("") ?? "",
     status: props.Status.select?.name ?? "Not Started",
     currentPhase: props["Current Phase"].select?.name ?? "1",
     totalCycleTimeHours: props["Total Cycle Time (hrs)"]?.rollup?.number ?? 0,
