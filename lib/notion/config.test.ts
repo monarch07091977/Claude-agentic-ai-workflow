@@ -8,6 +8,7 @@ describe("notionConfig", () => {
     delete process.env.NOTION_STEPS_DB_ID;
     delete process.env.NOTION_SUITABILITY_DB_ID;
     delete process.env.NOTION_AGENT_BLUEPRINT_DB_ID;
+    delete process.env.NOTION_VALUE_METRICS_DB_ID;
   });
 
   it("throws when NOTION_PARENT_PAGE_ID is not set", () => {
@@ -22,14 +23,16 @@ describe("notionConfig", () => {
     expect(notionConfig.parentPageId).toBe("abc123");
   });
 
-  it("exposes processesDbId, stepsDbId, suitabilityDbId, and agentBlueprintDbId the same way", () => {
+  it("exposes processesDbId, stepsDbId, suitabilityDbId, agentBlueprintDbId, and valueMetricsDbId the same way", () => {
     process.env.NOTION_PROCESSES_DB_ID = "processes-db";
     process.env.NOTION_STEPS_DB_ID = "steps-db";
     process.env.NOTION_SUITABILITY_DB_ID = "suitability-db";
     process.env.NOTION_AGENT_BLUEPRINT_DB_ID = "agent-blueprint-db";
+    process.env.NOTION_VALUE_METRICS_DB_ID = "value-metrics-db";
     expect(notionConfig.processesDbId).toBe("processes-db");
     expect(notionConfig.stepsDbId).toBe("steps-db");
     expect(notionConfig.suitabilityDbId).toBe("suitability-db");
     expect(notionConfig.agentBlueprintDbId).toBe("agent-blueprint-db");
+    expect(notionConfig.valueMetricsDbId).toBe("value-metrics-db");
   });
 });

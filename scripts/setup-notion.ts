@@ -237,11 +237,47 @@ async function main() {
     agentBlueprintDbId = agentBlueprintDb.id;
   }
 
+  let valueMetricsDbId = await findExistingDatabaseId(notion, parentPageId, "Value Metrics");
+  if (valueMetricsDbId) {
+    console.log("Value Metrics database already exists, reusing it.");
+  } else {
+    const valueMetricsDb = await notion.databases.create({
+      parent: { type: "page_id", page_id: parentPageId },
+      title: [{ type: "text", text: { content: "Value Metrics" } }],
+      properties: {
+        "Metric Name": { title: {} },
+        Process: {
+          relation: {
+            database_id: processesDbId,
+            type: "single_property",
+            single_property: {},
+          },
+        },
+        Category: {
+          select: {
+            options: [
+              { name: "Cycle Time", color: "blue" },
+              { name: "Cost", color: "green" },
+              { name: "Quality", color: "purple" },
+              { name: "Human Hours Reallocated", color: "orange" },
+            ],
+          },
+        },
+        Baseline: { number: { format: "number" } },
+        Current: { number: { format: "number" } },
+        Target: { number: { format: "number" } },
+        Unit: { rich_text: {} },
+      },
+    });
+    valueMetricsDbId = valueMetricsDb.id;
+  }
+
   console.log("Notion setup complete. Add these to your .env.local:\n");
   console.log(`NOTION_PROCESSES_DB_ID=${processesDbId}`);
   console.log(`NOTION_STEPS_DB_ID=${stepsDbId}`);
   console.log(`NOTION_SUITABILITY_DB_ID=${suitabilityDbId}`);
   console.log(`NOTION_AGENT_BLUEPRINT_DB_ID=${agentBlueprintDbId}`);
+  console.log(`NOTION_VALUE_METRICS_DB_ID=${valueMetricsDbId}`);
 }
 
 main().catch((error) => {

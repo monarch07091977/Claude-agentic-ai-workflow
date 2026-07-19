@@ -22,4 +22,7 @@ export const notionConfig = {
   get agentBlueprintDbId() {
     return requireEnv("NOTION_AGENT_BLUEPRINT_DB_ID");
   },
+  get valueMetricsDbId() {
+    return requireEnv("NOTION_VALUE_METRICS_DB_ID");
+  },
 };
