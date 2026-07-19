@@ -126,4 +126,43 @@ describe("upsertSuitabilityScore", () => {
     });
     expect(createMock).not.toHaveBeenCalled();
   });
+
+  it("archives duplicate score pages and updates the canonical one when more than one exists for the step", async () => {
+    queryMock.mockResolvedValue({
+      results: [
+        { ...makeScorePage(), id: "score-1" },
+        { ...makeScorePage(), id: "score-2" },
+      ],
+    });
+    updateMock.mockResolvedValue(
+      makeScorePage({
+        "Data Complexity": { number: 5 },
+        "Suitability Score": { number: 3.75 },
+        Classification: { select: { name: "Human-required" } },
+      })
+    );
+    const result = await upsertSuitabilityScore({
+      stepId: "step-1",
+      dataComplexity: 5,
+      decisionLogic: 4,
+      contextVolatility: 2,
+    });
+    expect(result.dataComplexity).toBe(5);
+    expect(updateMock).toHaveBeenCalledWith({
+      page_id: "score-2",
+      archived: true,
+    });
+    expect(updateMock).toHaveBeenCalledWith({
+      page_id: "score-1",
+      properties: {
+        "Data Complexity": { number: 5 },
+        "Decision Logic": { number: 4 },
+        "Context Volatility": { number: 2 },
+        "Suitability Score": { number: 3.75 },
+        Classification: { select: { name: "Human-required" } },
+      },
+    });
+    expect(updateMock).toHaveBeenCalledTimes(2);
+    expect(createMock).not.toHaveBeenCalled();
+  });
 });

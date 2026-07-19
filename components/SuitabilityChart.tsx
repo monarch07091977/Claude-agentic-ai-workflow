@@ -76,8 +76,19 @@ export function SuitabilityChart({
           />
           <Tooltip
             cursor={{ strokeDasharray: "3 3" }}
-            formatter={(value: number, name: string) => [value, name]}
-            labelFormatter={() => ""}
+            content={({ active, payload }) => {
+              if (!active || !payload || payload.length === 0) return null;
+              const point = payload[0].payload as (typeof data)[number];
+              return (
+                <div className="rounded border border-slate-200 bg-white p-2 text-xs shadow">
+                  <p className="font-medium">{point.stepName}</p>
+                  <p>Data Complexity: {point.dataComplexity}</p>
+                  <p>Context Volatility: {point.contextVolatility}</p>
+                  <p>Suitability Score: {point.suitabilityScore.toFixed(2)}</p>
+                  <p>{point.classification}</p>
+                </div>
+              );
+            }}
           />
           <Scatter data={data}>
             {data.map((point, index) => (

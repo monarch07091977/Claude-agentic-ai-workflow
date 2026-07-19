@@ -65,8 +65,17 @@ export async function upsertSuitabilityScore(input: {
   });
 
   if (existing.results.length > 0) {
+    const [canonical, ...duplicates] = existing.results;
+    // Self-heals duplicates from a create-race between concurrent requests — Notion has no uniqueness constraint to prevent the race itself.
+    if (duplicates.length > 0) {
+      await Promise.all(
+        duplicates.map((page) =>
+          notion.pages.update({ page_id: page.id, archived: true })
+        )
+      );
+    }
     const page = await notion.pages.update({
-      page_id: existing.results[0].id,
+      page_id: canonical.id,
       properties,
     });
     return pageToSuitabilityScore(page);

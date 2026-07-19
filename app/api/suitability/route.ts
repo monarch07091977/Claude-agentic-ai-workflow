@@ -44,6 +44,17 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+  const isValidScore = (value: number) => Number.isInteger(value) && value >= 1 && value <= 5;
+  if (
+    !isValidScore(body.dataComplexity) ||
+    !isValidScore(body.decisionLogic) ||
+    !isValidScore(body.contextVolatility)
+  ) {
+    return NextResponse.json(
+      { error: "dataComplexity, decisionLogic, and contextVolatility must be integers from 1 to 5" },
+      { status: 400 }
+    );
+  }
   try {
     const score = await upsertSuitabilityScore({
       stepId: body.stepId,
