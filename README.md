@@ -72,19 +72,44 @@ npm run test
 
 ## Deploying
 
-This app is a standard Next.js project and deploys cleanly to
-[Vercel](https://vercel.com/new) or any Next.js-compatible host:
+This is a standard Next.js app with no Vercel-specific features — it deploys the same
+way to any platform.
 
-1. Import this repository into Vercel (or your host of choice).
-2. Set the five environment variables from `.env.local` (`NOTION_TOKEN`,
+### Option A: Vercel (or another git-integrated Next.js host)
+
+1. Import this repository into [Vercel](https://vercel.com/new) (or your host of choice).
+2. Set the seven environment variables from `.env.local` (`NOTION_TOKEN`,
    `NOTION_PARENT_PAGE_ID`, `NOTION_PROCESSES_DB_ID`, `NOTION_STEPS_DB_ID`,
    `NOTION_SUITABILITY_DB_ID`, `NOTION_AGENT_BLUEPRINT_DB_ID`,
    `NOTION_VALUE_METRICS_DB_ID`) in the host's project settings.
 3. Deploy. No build configuration changes are needed.
 
+### Option B: Docker (any hyperscaler — AWS, Azure, GCP, or self-hosted)
+
+The included `Dockerfile` produces a self-contained image using Next.js's `standalone`
+output — no host-specific configuration required.
+
+```bash
+docker build -t agentic-workflow-app .
+docker run -p 3000:3000 --env-file .env.local agentic-workflow-app
+```
+
+This image runs identically on:
+
+- **AWS**: ECS/Fargate, App Runner, or EC2 with Docker
+- **Azure**: Container Apps or App Service (container deployment)
+- **GCP**: Cloud Run or GKE
+- Any VM or Kubernetes cluster with a container runtime
+
+Push the built image to your registry of choice (ECR, ACR, Artifact Registry, Docker
+Hub) and point your platform's container service at it, passing the same seven
+environment variables at deploy time.
+
+### Access control
+
 There is no user authentication in this version — anyone with the deployed URL can use
-the app. Restrict access at the hosting layer (e.g. Vercel's password protection) if
-needed.
+the app. Restrict access at the hosting layer (e.g. Vercel's password protection, a
+cloud load balancer's IP allowlist, or a sidecar auth proxy) if needed.
 
 ## Project structure
 
