@@ -3,6 +3,9 @@ import ExcelJS from "exceljs";
 import { createStep, listStepsForProcess } from "@/lib/notion/steps";
 import { parseStepRows } from "@/lib/importSteps";
 
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_IMPORT_ROWS = 500;
+
 export async function POST(request: Request) {
   let formData: FormData;
   try {
@@ -19,6 +22,12 @@ export async function POST(request: Request) {
   }
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "file is required" }, { status: 400 });
+  }
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    return NextResponse.json(
+      { error: `File is too large. Maximum size is ${MAX_FILE_SIZE_BYTES / (1024 * 1024)}MB.` },
+      { status: 400 }
+    );
   }
 
   let rows: unknown[][];
@@ -40,6 +49,15 @@ export async function POST(request: Request) {
   }
 
   const { valid, skipped } = parseStepRows(rows);
+
+  if (valid.length > MAX_IMPORT_ROWS) {
+    return NextResponse.json(
+      {
+        error: `Too many rows to import at once (${valid.length}). Maximum is ${MAX_IMPORT_ROWS} — split the spreadsheet into smaller batches.`,
+      },
+      { status: 400 }
+    );
+  }
 
   try {
     const existingSteps = await listStepsForProcess(processId);
