@@ -64,16 +64,18 @@ export function StepDraftForm({
   async function handleConfirm() {
     setSaving(true);
     setError(null);
+    const remaining = [...draftSteps];
     try {
-      for (let i = 0; i < draftSteps.length; i++) {
-        const step = draftSteps[i];
+      let sequence = existingStepCount + 1;
+      while (remaining.length > 0) {
+        const step = remaining[0];
         const response = await fetch("/api/steps", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             processId,
             stepName: step.stepName,
-            sequence: existingStepCount + i + 1,
+            sequence,
             handoffType: step.handoffType,
             cycleTimeHours: step.cycleTimeHours,
             cost: step.cost,
@@ -86,8 +88,10 @@ export function StepDraftForm({
           setError(body.error ?? "Failed to add drafted steps");
           return;
         }
+        remaining.shift();
+        sequence += 1;
+        setDraftSteps(remaining.slice());
       }
-      setDraftSteps([]);
       setRawText("");
       router.refresh();
     } catch {
