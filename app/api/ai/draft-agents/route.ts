@@ -31,6 +31,7 @@ export async function POST(request: Request) {
       system: DRAFT_AGENTS_SYSTEM_PROMPT,
       prompt: buildDraftAgentsPrompt(agenticSteps),
       schema: DRAFT_AGENTS_SCHEMA,
+      maxTokens: 4096,
     });
     return NextResponse.json(draft);
   } catch {

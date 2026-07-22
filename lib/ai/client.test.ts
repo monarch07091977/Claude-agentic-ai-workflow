@@ -48,4 +48,28 @@ describe("generateStructured", () => {
       generateStructured({ system: "s", prompt: "p", schema: {} })
     ).rejects.toThrow("Model response did not include a tool_use block");
   });
+
+  it("passes a custom maxTokens through to the API call, defaulting to 1024 when omitted", async () => {
+    createMock.mockResolvedValue({
+      content: [{ type: "tool_use", name: "respond", input: { foo: "bar" } }],
+    });
+    await generateStructured({
+      system: "s",
+      prompt: "p",
+      schema: {},
+      maxTokens: 4096,
+    });
+    expect(createMock).toHaveBeenCalledWith(
+      expect.objectContaining({ max_tokens: 4096 })
+    );
+
+    createMock.mockClear();
+    createMock.mockResolvedValue({
+      content: [{ type: "tool_use", name: "respond", input: { foo: "bar" } }],
+    });
+    await generateStructured({ system: "s", prompt: "p", schema: {} });
+    expect(createMock).toHaveBeenCalledWith(
+      expect.objectContaining({ max_tokens: 1024 })
+    );
+  });
 });

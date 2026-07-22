@@ -16,11 +16,12 @@ export async function generateStructured<T>(params: {
   system: string;
   prompt: string;
   schema: Record<string, unknown>;
+  maxTokens?: number;
 }): Promise<T> {
   const anthropic = getAnthropicClient();
   const response = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 1024,
+    max_tokens: params.maxTokens ?? 1024,
     system: params.system,
     messages: [{ role: "user", content: params.prompt }],
     tools: [

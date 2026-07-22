@@ -24,6 +24,7 @@ export async function POST(request: Request) {
       system: DRAFT_STEPS_SYSTEM_PROMPT,
       prompt: buildDraftStepsPrompt(body.rawText),
       schema: DRAFT_STEPS_SCHEMA,
+      maxTokens: 4096,
     });
     const { valid, skipped } = parseStepRows([STEP_ROW_HEADER, ...draft.rows]);
     return NextResponse.json({ steps: valid, skipped });
