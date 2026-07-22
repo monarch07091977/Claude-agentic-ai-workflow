@@ -161,7 +161,7 @@ export function AgentDraftForm({
               <button
                 type="button"
                 onClick={() => handleSaveAgent(index)}
-                disabled={savingIndex === index}
+                disabled={savingIndex !== null}
                 className="mt-2 rounded bg-brand-700 px-3 py-1 text-sm text-white hover:bg-brand-900 disabled:opacity-50"
               >
                 {savingIndex === index ? "Adding..." : "Add This Agent"}
