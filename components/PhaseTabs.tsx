@@ -22,7 +22,7 @@ export function PhaseTabs({
           href={`/process/${processId}/phase${phase.number}`}
           className={`px-4 py-2 text-sm font-medium ${
             phase.number === activePhase
-              ? "border-b-2 border-slate-900 text-slate-900"
+              ? "border-b-2 border-brand-700 text-brand-700"
               : "text-slate-500 hover:text-slate-700"
           }`}
         >

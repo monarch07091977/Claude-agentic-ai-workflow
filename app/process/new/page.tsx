@@ -63,7 +63,7 @@ export default function NewProcessPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="rounded bg-slate-900 px-4 py-2 text-white disabled:opacity-50"
+          className="rounded bg-brand-700 px-4 py-2 text-white hover:bg-brand-900 disabled:opacity-50"
         >
           {submitting ? "Creating..." : "Create Process"}
         </button>

@@ -26,7 +26,7 @@ export function MetricCards({ metrics }: { metrics: MetricRecord[] }) {
             </p>
             <div className="h-2 w-full rounded-full bg-slate-100">
               <div
-                className="h-2 rounded-full bg-slate-900"
+                className="h-2 rounded-full bg-brand-700"
                 style={{ width: `${progress}%` }}
               />
             </div>

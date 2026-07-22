@@ -150,7 +150,7 @@ export function SuitabilityForm({
                     type="button"
                     disabled={savingStepIds.has(step.id)}
                     onClick={() => handleSave(step.id)}
-                    className="rounded bg-slate-900 px-3 py-1 text-white disabled:opacity-50"
+                    className="rounded bg-brand-700 px-3 py-1 text-white hover:bg-brand-900 disabled:opacity-50"
                   >
                     {savingStepIds.has(step.id) ? "Saving..." : "Save"}
                   </button>

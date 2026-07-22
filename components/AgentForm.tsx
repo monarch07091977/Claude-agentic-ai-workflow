@@ -111,7 +111,7 @@ export function AgentForm({
       <button
         type="submit"
         disabled={submitting}
-        className="rounded bg-slate-900 px-4 py-1.5 text-sm text-white disabled:opacity-50"
+        className="rounded bg-brand-700 px-4 py-1.5 text-sm text-white hover:bg-brand-900 disabled:opacity-50"
       >
         {submitting ? "Adding..." : "Add Agent"}
       </button>
