@@ -105,6 +105,25 @@ Push the built image to your registry of choice (ECR, ACR, Artifact Registry, Do
 Hub) and point your platform's container service at it, passing the same seven
 environment variables at deploy time.
 
+### Option C: Render (Docker, hyperscaler-agnostic)
+
+The repo includes a `render.yaml` Blueprint that builds and runs the same `Dockerfile`
+used in Option B, so there is no separate build configuration to maintain.
+
+1. In the [Render dashboard](https://dashboard.render.com), click **New +** → **Blueprint**
+   and connect this GitHub repository. Render detects `render.yaml` automatically.
+2. Render creates one web service (`agentic-workflow-framework`) from the Dockerfile and
+   prompts for the seven environment variables declared in `render.yaml`
+   (`NOTION_TOKEN`, `NOTION_PARENT_PAGE_ID`, `NOTION_PROCESSES_DB_ID`,
+   `NOTION_STEPS_DB_ID`, `NOTION_SUITABILITY_DB_ID`, `NOTION_AGENT_BLUEPRINT_DB_ID`,
+   `NOTION_VALUE_METRICS_DB_ID`) — paste in the same values from your `.env.local`.
+3. Click **Apply**. Render builds the Docker image and deploys it; every subsequent push
+   to `main` redeploys automatically.
+
+Because this only runs the standard Dockerfile, moving off Render later means pointing
+any other container host (Fly.io, ECS, Cloud Run, Azure Container Apps, ...) at the same
+image — no Render-specific code exists anywhere in the app.
+
 ### Access control
 
 There is no user authentication in this version — anyone with the deployed URL can use

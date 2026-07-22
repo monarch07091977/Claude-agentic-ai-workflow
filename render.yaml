@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: agentic-workflow-framework
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    healthCheckPath: /
+    envVars:
+      - key: NOTION_TOKEN
+        sync: false
+      - key: NOTION_PARENT_PAGE_ID
+        sync: false
+      - key: NOTION_PROCESSES_DB_ID
+        sync: false
+      - key: NOTION_STEPS_DB_ID
+        sync: false
+      - key: NOTION_SUITABILITY_DB_ID
+        sync: false
+      - key: NOTION_AGENT_BLUEPRINT_DB_ID
+        sync: false
+      - key: NOTION_VALUE_METRICS_DB_ID
+        sync: false
