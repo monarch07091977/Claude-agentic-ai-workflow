@@ -63,19 +63,24 @@ path, JSON body on success and on error, no partial responses.
 
 - `POST /api/ai/suggest-score` — **Feature 1**
   - Input: `{ stepId: string }`
-  - Server loads the step via the existing `listStepsForProcess` /
-    per-step lookup pattern already used elsewhere, builds a prompt from its
-    existing fields (`stepName`, `handoffType`, `cycleTimeHours`, `cost`,
-    `bottleneck`), and asks for `{ dataComplexity: 1-5, decisionLogic: 1-5,
+  - Server loads the step (new `getStep(id)` added to `lib/notion/steps.ts`,
+    since no single-record lookup exists there yet — every other read is
+    `listStepsForProcess`), builds a prompt from its existing fields
+    (`stepName`, `handoffType`, `cycleTimeHours`, `cost`, `bottleneck`,
+    `notes`), and asks for `{ dataComplexity: 1-5, decisionLogic: 1-5,
     contextVolatility: 1-5, rationale: string }`.
-  - **No new Notion schema field.** Steps have no free-text description
-    today; v1 reasons from the fields that already exist (a well-written step
-    name carries most of the signal). If suggestions read as too generic once
-    this is live, a follow-up spec can add an optional "Notes" property to
-    Process Steps — deferred rather than speculative-built now.
+  - **No new Notion schema field.** Steps already have a `notes` rich-text
+    property (used by the spreadsheet importer) even though the manual
+    add-step form in `StepTable` never exposed an input for it — the AI
+    route reads it as free-text context when present. No schema change
+    needed; this replaces the "add a Description field" open question from
+    the original design discussion.
 
 - `POST /api/ai/draft-steps` — **Feature 2**
-  - Input: `{ processId: string, rawText: string }`
+  - Input: `{ rawText: string }`. No `processId` — extraction and validation
+    don't touch Notion, so the route doesn't need it; the client already has
+    it and supplies it separately when it later calls `POST /api/steps` for
+    each confirmed row.
   - Prompts the model to extract a step list as
     `{ steps: { stepName, handoffType, cycleTimeHours, cost, bottleneck }[] }`
     matching the same shape `parseStepRows` in `lib/importSteps.ts` already
