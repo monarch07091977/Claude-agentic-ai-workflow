@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { StepRecord } from "@/lib/notion/steps";
 import type { SuitabilityScoreRecord } from "@/lib/notion/suitability";
@@ -43,12 +43,48 @@ export function SuitabilityForm({
   );
   const [savingStepIds, setSavingStepIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [suggestingStepIds, setSuggestingStepIds] = useState<Set<string>>(new Set());
+  const [rationales, setRationales] = useState<Record<string, string>>({});
 
   function updateInput(stepId: string, field: keyof RowInputs, value: number) {
     setInputs((prev) => ({
       ...prev,
       [stepId]: { ...prev[stepId], [field]: value },
     }));
+  }
+
+  async function handleSuggest(stepId: string) {
+    setSuggestingStepIds((prev) => new Set(prev).add(stepId));
+    setError(null);
+    try {
+      const response = await fetch("/api/ai/suggest-score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stepId }),
+      });
+      const body = await response.json();
+      if (!response.ok) {
+        setError(body.error ?? "Failed to generate a score suggestion");
+        return;
+      }
+      setInputs((prev) => ({
+        ...prev,
+        [stepId]: {
+          dataComplexity: body.dataComplexity,
+          decisionLogic: body.decisionLogic,
+          contextVolatility: body.contextVolatility,
+        },
+      }));
+      setRationales((prev) => ({ ...prev, [stepId]: body.rationale }));
+    } catch {
+      setError("Failed to generate a score suggestion");
+    } finally {
+      setSuggestingStepIds((prev) => {
+        const next = new Set(prev);
+        next.delete(stepId);
+        return next;
+      });
+    }
   }
 
   async function handleSave(stepId: string) {
@@ -105,57 +141,74 @@ export function SuitabilityForm({
             const score = computeSuitabilityScore(rowInputs);
             const classification = classifySuitability(score);
             return (
-              <tr key={step.id} className="border-b border-slate-100">
-                <td className="py-2">{step.stepName}</td>
-                <td>
-                  <input
-                    type="number"
-                    min={1}
-                    max={5}
-                    className="w-16 rounded border border-slate-300 p-1"
-                    value={rowInputs.dataComplexity}
-                    onChange={(e) =>
-                      updateInput(step.id, "dataComplexity", Number(e.target.value))
-                    }
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    min={1}
-                    max={5}
-                    className="w-16 rounded border border-slate-300 p-1"
-                    value={rowInputs.decisionLogic}
-                    onChange={(e) =>
-                      updateInput(step.id, "decisionLogic", Number(e.target.value))
-                    }
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    min={1}
-                    max={5}
-                    className="w-16 rounded border border-slate-300 p-1"
-                    value={rowInputs.contextVolatility}
-                    onChange={(e) =>
-                      updateInput(step.id, "contextVolatility", Number(e.target.value))
-                    }
-                  />
-                </td>
-                <td>{score.toFixed(2)}</td>
-                <td>{classification}</td>
-                <td>
-                  <button
-                    type="button"
-                    disabled={savingStepIds.has(step.id)}
-                    onClick={() => handleSave(step.id)}
-                    className="rounded bg-brand-700 px-3 py-1 text-white hover:bg-brand-900 disabled:opacity-50"
-                  >
-                    {savingStepIds.has(step.id) ? "Saving..." : "Save"}
-                  </button>
-                </td>
-              </tr>
+              <React.Fragment key={step.id}>
+                <tr className="border-b border-slate-100">
+                  <td className="py-2">{step.stepName}</td>
+                  <td>
+                    <input
+                      type="number"
+                      min={1}
+                      max={5}
+                      className="w-16 rounded border border-slate-300 p-1"
+                      value={rowInputs.dataComplexity}
+                      onChange={(e) =>
+                        updateInput(step.id, "dataComplexity", Number(e.target.value))
+                      }
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      min={1}
+                      max={5}
+                      className="w-16 rounded border border-slate-300 p-1"
+                      value={rowInputs.decisionLogic}
+                      onChange={(e) =>
+                        updateInput(step.id, "decisionLogic", Number(e.target.value))
+                      }
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      min={1}
+                      max={5}
+                      className="w-16 rounded border border-slate-300 p-1"
+                      value={rowInputs.contextVolatility}
+                      onChange={(e) =>
+                        updateInput(step.id, "contextVolatility", Number(e.target.value))
+                      }
+                    />
+                  </td>
+                  <td>{score.toFixed(2)}</td>
+                  <td>{classification}</td>
+                  <td className="space-x-2 whitespace-nowrap">
+                    <button
+                      type="button"
+                      disabled={suggestingStepIds.has(step.id)}
+                      onClick={() => handleSuggest(step.id)}
+                      className="rounded border border-brand-700 px-2 py-1 text-brand-700 hover:bg-brand-50 disabled:opacity-50"
+                    >
+                      {suggestingStepIds.has(step.id) ? "Thinking..." : "Suggest"}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={savingStepIds.has(step.id)}
+                      onClick={() => handleSave(step.id)}
+                      className="rounded bg-brand-700 px-3 py-1 text-white hover:bg-brand-900 disabled:opacity-50"
+                    >
+                      {savingStepIds.has(step.id) ? "Saving..." : "Save"}
+                    </button>
+                  </td>
+                </tr>
+                {rationales[step.id] && (
+                  <tr className="border-b border-slate-100">
+                    <td colSpan={7} className="pb-2 text-xs text-slate-500">
+                      {rationales[step.id]}
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             );
           })}
         </tbody>
