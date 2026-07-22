@@ -38,6 +38,12 @@ export async function listStepsForProcess(processId: string): Promise<StepRecord
   return response.results.map(pageToStep);
 }
 
+export async function getStep(id: string): Promise<StepRecord> {
+  const notion = getNotionClient();
+  const page = await notion.pages.retrieve({ page_id: id });
+  return pageToStep(page);
+}
+
 export async function createStep(input: {
   processId: string;
   stepName: string;

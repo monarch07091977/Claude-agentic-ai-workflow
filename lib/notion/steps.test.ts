@@ -1,14 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { listStepsForProcess, createStep, updateStep, deleteStep } from "./steps";
+import { listStepsForProcess, createStep, updateStep, deleteStep, getStep } from "./steps";
 
 const queryMock = vi.fn();
 const createMock = vi.fn();
 const updateMock = vi.fn();
+const retrieveMock = vi.fn();
 
 vi.mock("./client", () => ({
   getNotionClient: () => ({
     databases: { query: queryMock },
-    pages: { create: createMock, update: updateMock },
+    pages: { create: createMock, update: updateMock, retrieve: retrieveMock },
   }),
 }));
 
@@ -37,6 +38,7 @@ beforeEach(() => {
   queryMock.mockReset();
   createMock.mockReset();
   updateMock.mockReset();
+  retrieveMock.mockReset();
 });
 
 describe("listStepsForProcess", () => {
@@ -61,6 +63,15 @@ describe("listStepsForProcess", () => {
       filter: { property: "Process", relation: { contains: "process-1" } },
       sorts: [{ property: "Sequence", direction: "ascending" }],
     });
+  });
+});
+
+describe("getStep", () => {
+  it("retrieves a single step by id", async () => {
+    retrieveMock.mockResolvedValue(makeStepPage());
+    const result = await getStep("step-1");
+    expect(result.stepName).toBe("Submit Requisition");
+    expect(retrieveMock).toHaveBeenCalledWith({ page_id: "step-1" });
   });
 });
 
