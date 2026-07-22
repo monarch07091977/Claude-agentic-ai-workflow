@@ -20,3 +20,5 @@ services:
         sync: false
       - key: NOTION_VALUE_METRICS_DB_ID
         sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false

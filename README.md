@@ -46,6 +46,11 @@ cp .env.local.example .env.local
 Fill in `NOTION_TOKEN` (the integration secret from step 2) and `NOTION_PARENT_PAGE_ID`
 (the page ID from step 2).
 
+Also fill in `ANTHROPIC_API_KEY` (from
+[console.anthropic.com](https://console.anthropic.com/settings/keys)) — it powers the
+AI-assisted drafting buttons in Phases 1, 2, and 3. The app works without it; those
+buttons simply return an error until it's set.
+
 ### 4. Provision the Notion databases
 
 ```bash
@@ -78,10 +83,10 @@ way to any platform.
 ### Option A: Vercel (or another git-integrated Next.js host)
 
 1. Import this repository into [Vercel](https://vercel.com/new) (or your host of choice).
-2. Set the seven environment variables from `.env.local` (`NOTION_TOKEN`,
+2. Set the eight environment variables from `.env.local` (`NOTION_TOKEN`,
    `NOTION_PARENT_PAGE_ID`, `NOTION_PROCESSES_DB_ID`, `NOTION_STEPS_DB_ID`,
    `NOTION_SUITABILITY_DB_ID`, `NOTION_AGENT_BLUEPRINT_DB_ID`,
-   `NOTION_VALUE_METRICS_DB_ID`) in the host's project settings.
+   `NOTION_VALUE_METRICS_DB_ID`, `ANTHROPIC_API_KEY`) in the host's project settings.
 3. Deploy. No build configuration changes are needed.
 
 ### Option B: Docker (any hyperscaler — AWS, Azure, GCP, or self-hosted)
@@ -102,7 +107,7 @@ This image runs identically on:
 - Any VM or Kubernetes cluster with a container runtime
 
 Push the built image to your registry of choice (ECR, ACR, Artifact Registry, Docker
-Hub) and point your platform's container service at it, passing the same seven
+Hub) and point your platform's container service at it, passing the same eight
 environment variables at deploy time.
 
 ### Option C: Render (Docker, hyperscaler-agnostic)
@@ -113,10 +118,11 @@ used in Option B, so there is no separate build configuration to maintain.
 1. In the [Render dashboard](https://dashboard.render.com), click **New +** → **Blueprint**
    and connect this GitHub repository. Render detects `render.yaml` automatically.
 2. Render creates one web service (`agentic-workflow-framework`) from the Dockerfile and
-   prompts for the seven environment variables declared in `render.yaml`
+   prompts for the eight environment variables declared in `render.yaml`
    (`NOTION_TOKEN`, `NOTION_PARENT_PAGE_ID`, `NOTION_PROCESSES_DB_ID`,
    `NOTION_STEPS_DB_ID`, `NOTION_SUITABILITY_DB_ID`, `NOTION_AGENT_BLUEPRINT_DB_ID`,
-   `NOTION_VALUE_METRICS_DB_ID`) — paste in the same values from your `.env.local`.
+   `NOTION_VALUE_METRICS_DB_ID`, `ANTHROPIC_API_KEY`) — paste in the same values from
+   your `.env.local`.
 3. Click **Apply**. Render builds the Docker image and deploys it; every subsequent push
    to `main` redeploys automatically.
 

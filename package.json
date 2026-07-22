@@ -11,6 +11,7 @@
     "setup:notion": "tsx scripts/setup-notion.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.112.5",
     "@notionhq/client": "^2.2.15",
     "exceljs": "^4.4.0",
     "next": "^14.2.5",
