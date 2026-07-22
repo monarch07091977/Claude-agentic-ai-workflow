@@ -1,6 +1,7 @@
 import { PhaseTabs } from "@/components/PhaseTabs";
 import { BaselineSummary } from "@/components/BaselineSummary";
 import { StepImportForm } from "@/components/StepImportForm";
+import { StepDraftForm } from "@/components/StepDraftForm";
 import { StepTable } from "@/components/StepTable";
 import { listStepsForProcess, type StepRecord } from "@/lib/notion/steps";
 
@@ -27,6 +28,7 @@ export default async function Phase1Page({ params }: { params: { id: string } })
         <>
           <BaselineSummary steps={steps} />
           <StepImportForm processId={params.id} />
+          <StepDraftForm processId={params.id} existingStepCount={steps.length} />
           <StepTable processId={params.id} steps={steps} />
         </>
       )}
