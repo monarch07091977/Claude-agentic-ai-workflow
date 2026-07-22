@@ -1,5 +1,6 @@
 import { PhaseTabs } from "@/components/PhaseTabs";
 import { AgentFlowDiagram } from "@/components/AgentFlowDiagram";
+import { AgentDraftForm } from "@/components/AgentDraftForm";
 import { AgentForm } from "@/components/AgentForm";
 import { listAgentsForProcess, type AgentRecord } from "@/lib/notion/agents";
 
@@ -27,6 +28,7 @@ export default async function Phase3Page({ params }: { params: { id: string } })
       ) : (
         <>
           <AgentFlowDiagram agents={agents} />
+          <AgentDraftForm processId={params.id} agents={agents} />
           <AgentForm processId={params.id} agents={agents} />
         </>
       )}
