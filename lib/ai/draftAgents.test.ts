@@ -27,6 +27,7 @@ function makeScore(overrides: Partial<SuitabilityScoreRecord> = {}): Suitability
     contextVolatility: 2,
     suitabilityScore: 3.5,
     classification: "Agentic",
+    assessmentQA: "",
     ...overrides,
   };
 }
