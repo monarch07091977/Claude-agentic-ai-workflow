@@ -57,6 +57,7 @@ describe("listSuitabilityScoresForSteps", () => {
         contextVolatility: 2,
         suitabilityScore: 3,
         classification: "Agentic",
+        assessmentQA: "",
       },
     ]);
     expect(queryMock).toHaveBeenCalledWith({
@@ -68,6 +69,20 @@ describe("listSuitabilityScoresForSteps", () => {
         ],
       },
     });
+  });
+
+  it("reads an existing Assessment Q&A value from the page", async () => {
+    queryMock.mockResolvedValue({
+      results: [
+        makeScorePage({
+          "Assessment Q&A": {
+            rich_text: [{ plain_text: "Q (dataComplexity): ...\nA: ..." }],
+          },
+        }),
+      ],
+    });
+    const result = await listSuitabilityScoresForSteps(["step-1"]);
+    expect(result[0].assessmentQA).toBe("Q (dataComplexity): ...\nA: ...");
   });
 });
 
@@ -98,6 +113,36 @@ describe("upsertSuitabilityScore", () => {
     expect(updateMock).not.toHaveBeenCalled();
   });
 
+  it("includes Assessment Q&A in the write when provided", async () => {
+    queryMock.mockResolvedValue({ results: [] });
+    createMock.mockResolvedValue(
+      makeScorePage({
+        "Assessment Q&A": { rich_text: [{ plain_text: "Q: ...\nA: ..." }] },
+      })
+    );
+    const result = await upsertSuitabilityScore({
+      stepId: "step-1",
+      dataComplexity: 2,
+      decisionLogic: 4,
+      contextVolatility: 2,
+      assessmentQA: "Q: ...\nA: ...",
+    });
+    expect(result.assessmentQA).toBe("Q: ...\nA: ...");
+    expect(createMock).toHaveBeenCalledWith({
+      parent: { database_id: "suitability-db-id" },
+      properties: {
+        Score: { title: [{ text: { content: "Score" } }] },
+        Step: { relation: [{ id: "step-1" }] },
+        "Data Complexity": { number: 2 },
+        "Decision Logic": { number: 4 },
+        "Context Volatility": { number: 2 },
+        "Suitability Score": { number: 3 },
+        Classification: { select: { name: "Agentic" } },
+        "Assessment Q&A": { rich_text: [{ text: { content: "Q: ...\nA: ..." } }] },
+      },
+    });
+  });
+
   it("updates the existing score page when one already exists for the step", async () => {
     queryMock.mockResolvedValue({ results: [makeScorePage()] });
     updateMock.mockResolvedValue(
@@ -125,6 +170,19 @@ describe("upsertSuitabilityScore", () => {
       },
     });
     expect(createMock).not.toHaveBeenCalled();
+  });
+
+  it("does not overwrite Assessment Q&A on update when not provided", async () => {
+    queryMock.mockResolvedValue({ results: [makeScorePage()] });
+    updateMock.mockResolvedValue(makeScorePage());
+    await upsertSuitabilityScore({
+      stepId: "step-1",
+      dataComplexity: 5,
+      decisionLogic: 4,
+      contextVolatility: 2,
+    });
+    const calledProperties = updateMock.mock.calls[0][0].properties;
+    expect(calledProperties).not.toHaveProperty("Assessment Q&A");
   });
 
   it("archives duplicate score pages and updates the canonical one when more than one exists for the step", async () => {

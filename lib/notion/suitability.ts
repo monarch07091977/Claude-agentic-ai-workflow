@@ -10,6 +10,7 @@ export interface SuitabilityScoreRecord {
   contextVolatility: number;
   suitabilityScore: number;
   classification: string;
+  assessmentQA: string;
 }
 
 function pageToSuitabilityScore(page: any): SuitabilityScoreRecord {
@@ -22,6 +23,8 @@ function pageToSuitabilityScore(page: any): SuitabilityScoreRecord {
     contextVolatility: props["Context Volatility"]?.number ?? 0,
     suitabilityScore: props["Suitability Score"]?.number ?? 0,
     classification: props.Classification?.select?.name ?? "Algorithmic",
+    assessmentQA:
+      props["Assessment Q&A"]?.rich_text?.map((t: any) => t.plain_text).join("") ?? "",
   };
 }
 
@@ -47,17 +50,21 @@ export async function upsertSuitabilityScore(input: {
   dataComplexity: number;
   decisionLogic: number;
   contextVolatility: number;
+  assessmentQA?: string;
 }): Promise<SuitabilityScoreRecord> {
   const notion = getNotionClient();
   const suitabilityScore = computeSuitabilityScore(input);
   const classification = classifySuitability(suitabilityScore);
-  const properties = {
+  const properties: Record<string, any> = {
     "Data Complexity": { number: input.dataComplexity },
     "Decision Logic": { number: input.decisionLogic },
     "Context Volatility": { number: input.contextVolatility },
     "Suitability Score": { number: suitabilityScore },
     Classification: { select: { name: classification } },
   };
+  if (input.assessmentQA !== undefined) {
+    properties["Assessment Q&A"] = { rich_text: [{ text: { content: input.assessmentQA } }] };
+  }
 
   const existing = await notion.databases.query({
     database_id: notionConfig.suitabilityDbId,

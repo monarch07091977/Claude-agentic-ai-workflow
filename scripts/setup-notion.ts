@@ -180,6 +180,14 @@ async function main() {
     suitabilityDbId = suitabilityDb.id;
   }
 
+  await notion.databases.update({
+    database_id: suitabilityDbId,
+    properties: {
+      "Assessment Q&A": { rich_text: {} },
+    },
+  });
+  console.log("Ensured 'Assessment Q&A' property exists on Suitability Scores.");
+
   let agentBlueprintDbId = await findExistingDatabaseId(notion, parentPageId, "Agent Blueprint");
   if (agentBlueprintDbId) {
     console.log("Agent Blueprint database already exists, reusing it.");
