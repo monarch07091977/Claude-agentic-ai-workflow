@@ -25,6 +25,7 @@ const STEPS = [
       "For each step, set three scores from 1 to 5: data complexity, decision logic, and context volatility.",
       "The classification updates live as you type: below 2.33 comes back Algorithmic (automate it conventionally, no agent needed), 2.33 to 3.67 comes back Agentic (a good candidate for an AI agent), above 3.67 comes back Human-required (too volatile or judgment-heavy for now).",
       "Click Save on a row once you're happy with it — the chart below plots every scored step by complexity and volatility, sized by its score.",
+      "Not sure what to put from the step name alone? Suggest gives a quick guess from what's already logged. Deep dive asks a short, step-specific questionnaire instead — two questions per dimension — and Score from answers grounds the suggestion in what you actually told it. Either way, the three number inputs stay yours to edit before you click Save, and once you've answered at least one question, that Q&A is saved alongside the score as a record of why.",
     ],
   },
   {
