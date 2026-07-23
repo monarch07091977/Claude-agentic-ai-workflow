@@ -61,6 +61,7 @@ export async function POST(request: Request) {
       dataComplexity: body.dataComplexity,
       decisionLogic: body.decisionLogic,
       contextVolatility: body.contextVolatility,
+      ...(typeof body.assessmentQA === "string" ? { assessmentQA: body.assessmentQA } : {}),
     });
     return NextResponse.json(score, { status: 200 });
   } catch {
